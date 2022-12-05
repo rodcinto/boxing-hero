@@ -1,5 +1,5 @@
 export const jeb = {
     title: "Jeb",
     strong: false,
-    file: require('./../../assets/moveSounds/Ding.mp3')
+    file: require('./../../assets/moveSounds/jeb.mp3')
 }

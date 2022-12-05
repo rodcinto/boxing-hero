@@ -6,9 +6,15 @@ import { Audio } from 'expo-av';
 import { soundtrack1 } from './components/musics/soundtrack1';
 import { moveSoundList } from './components/moveSounds/moveSoundList';
 
-const INTRO_TIME = 4000;
+import { shuffle } from './components/shuffle';
+
+const INTRO_TIME = 3000;
 const AFTER_RESUME_TIME = 2000;
-const TIME_GAP_MOVE = 500;
+const MOVE_GAP_TIME = 500;
+const COMBO_GAP_TIME = 3500;
+
+const COMBO_MIN = 1;
+const COMBO_MAX = 5;
 
 const PLAY_TEXT = 'PLAY';
 const PAUSE_TEXT = 'PAUSE';
@@ -20,9 +26,20 @@ function loadAndPlay(file) {
         });
 }
 
+async function isSoundPlaying(sound = undefined) {
+    if (sound !== undefined) {
+        const soundStatus = await sound.getStatusAsync();
+        return soundStatus.isPlaying;
+    }
+    return false;
+}
+
+let isMusicPlaying = false;
+
 export default function PlayButton() {
     const [musicSound, setMusicSound] = React.useState();
     const [playButtonText, setPlayButtonText] = React.useState(PLAY_TEXT);
+
 
     function playPressedHandler() {
         if (musicSound) {
@@ -32,7 +49,7 @@ export default function PlayButton() {
         loadMusic(soundtrack1);
         setPlayButtonText(PAUSE_TEXT);
 
-        setTimeout(playMoveSet, INTRO_TIME);
+        setTimeout(playCombo, INTRO_TIME);
     }
 
     function loadMusic(musicData) {
@@ -40,39 +57,51 @@ export default function PlayButton() {
             .then(({ sound }) => {
                 setMusicSound(sound);
                 sound.playAsync();
+                isMusicPlaying = true;
             });
     }
 
     async function toggleMusic(musicData) {
-        const status = await musicData.getStatusAsync();
-        if (status.isPlaying) {
+        if (isMusicPlaying === true) {
             await musicData.pauseAsync();
+            isMusicPlaying = false;
             setPlayButtonText(PLAY_TEXT);
         } else {
             await musicData.playAsync();
+            isMusicPlaying = true;
             setPlayButtonText(PAUSE_TEXT);
 
-            setTimeout(playMoveSet, INTRO_TIME);
+            setTimeout(playCombo, AFTER_RESUME_TIME);
         }
     }
 
-    async function playMoveSet(moveIndex = 0) {
-        if (musicSound) {
-            const musicStatus = await musicSound.getStatusAsync();
-            if (!musicStatus.isPlaying) {
-                return;
-            }
-        }
-
-        if (moveIndex >= moveSoundList.length - 1) {
+    async function playCombo() {
+        if (!isMusicPlaying) {
             return;
         }
 
-        loadAndPlay(moveSoundList[moveIndex].file);
-        console.log('Load and Play', moveSoundList[moveIndex].title);
+        const combo = shuffle(moveSoundList, COMBO_MAX, COMBO_MIN);
+        console.log('Combo:', combo);
+
+        playMoveSet(combo).then(() => {
+            setTimeout(playCombo, COMBO_GAP_TIME);
+        });
+    }
+
+    async function playMoveSet(combo, moveIndex = 0) {
+        if (moveIndex >= combo.length) {
+            return;
+        }
+        if (!isMusicPlaying) {
+            return;
+        }
+
+        loadAndPlay(combo[moveIndex].file);
+        console.log('Load and Play', combo[moveIndex].title);
         setTimeout(() => {
-            playMoveSet(++moveIndex);
-        }, TIME_GAP_MOVE);
+            moveIndex++;
+            playMoveSet(combo, moveIndex);
+        }, MOVE_GAP_TIME);
     }
 
     React.useEffect(() => {

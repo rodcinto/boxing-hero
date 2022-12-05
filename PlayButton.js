@@ -4,6 +4,8 @@ import { StyleSheet, Text, TouchableOpacity } from 'react-native';
 import { Audio } from 'expo-av';
 
 import { soundtrack1 } from './components/musics/soundtrack1';
+import { boxingBell } from './components/boxingBell';
+import { ding } from './components/ding';
 import { moveSoundList } from './components/moveSounds/moveSoundList';
 
 import { shuffle } from './components/shuffle';
@@ -26,22 +28,14 @@ function loadAndPlay(file) {
         });
 }
 
-async function isSoundPlaying(sound = undefined) {
-    if (sound !== undefined) {
-        const soundStatus = await sound.getStatusAsync();
-        return soundStatus.isPlaying;
-    }
-    return false;
-}
-
 let isMusicPlaying = false;
 
 export default function PlayButton() {
     const [musicSound, setMusicSound] = React.useState();
     const [playButtonText, setPlayButtonText] = React.useState(PLAY_TEXT);
 
-
     function playPressedHandler() {
+        loadAndPlay(boxingBell.file);
         if (musicSound) {
             toggleMusic(musicSound);
             return;
@@ -81,6 +75,7 @@ export default function PlayButton() {
         }
 
         const combo = shuffle(moveSoundList, COMBO_MAX, COMBO_MIN);
+        combo.push(ding);
         console.log('Combo:', combo);
 
         playMoveSet(combo).then(() => {

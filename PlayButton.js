@@ -96,6 +96,7 @@ export default function PlayButton(props) {
 
         // virtual button press
         props.onPress({ active: false });
+        props.onMovePlay('');
     }
 
     async function playCombo() {
@@ -120,8 +121,13 @@ export default function PlayButton(props) {
             return;
         }
 
-        loadAndPlaySound(combo[moveIndex].file);
-        console.log('Load and Play', combo[moveIndex].title);
+        const currentMove = combo[moveIndex];
+
+        loadAndPlaySound(currentMove.file);
+        // console.log('Load and Play', currentMove.title);
+        if (currentMove.title !== 'Ding') {
+            props.onMovePlay(combo[moveIndex].title.toUpperCase());
+        }
         setTimeout(() => {
             moveIndex++;
             playMoveSet(combo, moveIndex);
@@ -129,9 +135,7 @@ export default function PlayButton(props) {
     }
 
     React.useEffect(() => {
-        console.log('Use Effect');
-
-        console.log('StopRound?', props);
+        console.log('PlayButtonProps', props);
         if (props.resetFired) {
             stopRound(musicSound);
         }
@@ -148,13 +152,13 @@ export default function PlayButton(props) {
 
 const styles = StyleSheet.create({
     roundButton: {
-        width: 120,
-        height: 120,
+        width: 150,
+        height: 150,
         justifyContent: 'center',
         alignItems: 'center',
         padding: 10,
         borderRadius: 100,
-        backgroundColor: '#A00',
+        backgroundColor: 'orangered',
 
     },
     buttonText: {

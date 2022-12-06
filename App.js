@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, SafeAreaView } from 'react-native';
+import { StyleSheet, Text, SafeAreaView, View } from 'react-native';
 
 import PlayButton from './PlayButton';
 import ResetButton from './ResetButton';
@@ -14,6 +14,7 @@ export default function App() {
     const [resetSignal, setResetSignal] = React.useState({
         fired: undefined
     });
+    const [moveText, setMoveText] = React.useState('');
 
     function onPlayButtonPress(signal) {
         setStopwatch(signal);
@@ -24,6 +25,10 @@ export default function App() {
         setResetSignal({
             fired: true
         });
+    }
+
+    function onMovePlay(text) {
+        setMoveText(text);
     }
 
     React.useEffect(() => {
@@ -41,9 +46,17 @@ export default function App() {
                 Become a Boxing Hero!
             </Text>
 
+            <View style={styles.movesDisplay}>
+                <Text style={styles.moveText}>{moveText}</Text>
+            </View>
+
             <Stopwatch active={stopwatch.active} resetFired={resetSignal.fired} />
 
-            <PlayButton onPress={onPlayButtonPress} resetFired={resetSignal.fired} />
+            <PlayButton
+                onPress={onPlayButtonPress}
+                resetFired={resetSignal.fired}
+                onMovePlay={onMovePlay}
+            />
 
             <ResetButton onPress={onResetButtonPress} />
 
@@ -53,6 +66,19 @@ export default function App() {
 }
 
 const styles = StyleSheet.create({
+    movesDisplay: {
+        padding: 10,
+        margin: 10,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: '#111',
+        height: 200,
+        width: '80%'
+    },
+    moveText: {
+        color: 'orangered',
+        fontSize: 50
+    },
     container: {
         flex: 1,
         backgroundColor: '#000',

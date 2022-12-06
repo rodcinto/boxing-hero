@@ -16,7 +16,7 @@ function Timer({ interval }) {
     );
 }
 
-export default function Stopwatch({ active }) {
+export default function Stopwatch({ active, resetFired }) {
     const [state, setState] = React.useState({
         startTime: 0,
         nowTime: 0,
@@ -63,11 +63,21 @@ export default function Stopwatch({ active }) {
         console.log('Resume Running Timer', runningTimer);
     }
 
-    const stop = () => {
+    const pause = () => {
         clearTimer();
         setState({
             startTime: state.startTime,
             nowTime: state.nowTime,
+            stopped: true
+        });
+    }
+
+    const stopAndReset = () => {
+        clearTimer();
+        setRunningTimer(0);
+        setState({
+            startTime: 0,
+            nowTime: 0,
             stopped: true
         });
     }
@@ -82,17 +92,22 @@ export default function Stopwatch({ active }) {
     React.useEffect(() => {
         if (active) {
             if (state.nowTime === 0) {
-                console.log('START');
+                console.log('START WATCH');
                 start();
             } else if(state.stopped) {
-                console.log('RESUME');
+                console.log('RESUME WATCH');
                 resume();
             }
         }
 
         if (!active && runningTimer !== 0) {
-            console.log('STOP');
-            stop();
+            console.log('PAUSE WATCH');
+            pause();
+        }
+
+        if (resetFired) {
+            console.log('STOP WATCH');
+            stopAndReset();
         }
     });
 

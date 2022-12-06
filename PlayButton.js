@@ -20,35 +20,39 @@ const COMBO_MAX = 5;
 
 const PLAY_TEXT = 'PLAY';
 const PAUSE_TEXT = 'PAUSE';
+const RESUME_TEXT = 'RESUME';
 
-function loadAndPlay(file) {
+function loadAndPlaySound(file) {
     Audio.Sound.createAsync(file)
         .then(({ sound }) => {
             sound.playAsync();
         });
 }
 
-let isMusicPlaying = false;
+let isRoundActive = false;
 
 export default function PlayButton(props) {
     const [musicSound, setMusicSound] = React.useState();
     const [playButtonText, setPlayButtonText] = React.useState(PLAY_TEXT);
-    const [stopWatchOn, setStopWatchOn] = React.useState(props.stopwatchOn);
 
     function playPressedHandler() {
-        loadAndPlay(boxingBell.file);
         if (musicSound) {
-            toggleMusic(musicSound);
+            if (isRoundActive === true) {
+                pauseRound(musicSound);
+            } else {
+                resumeRound(musicSound);
+            }
             return;
         }
-        kickStart();
+        startRound();
     }
 
-    function kickStart() {
+    function startRound() {
+        console.log('START ROUND');
+        loadAndPlaySound(boxingBell.file);
         loadMusic(soundtrack1);
         setPlayButtonText(PAUSE_TEXT);
-        setStopWatchOn(true);
-        props.onPress({active: true});
+        props.onPress({ active: true });
 
         setTimeout(playCombo, INTRO_TIME);
     }
@@ -58,30 +62,44 @@ export default function PlayButton(props) {
             .then(({ sound }) => {
                 setMusicSound(sound);
                 sound.playAsync();
-                isMusicPlaying = true;
+                isRoundActive = true;
             });
     }
 
-    async function toggleMusic(musicData) {
-        if (isMusicPlaying === true) {
-            await musicData.pauseAsync();
-            isMusicPlaying = false;
-            setPlayButtonText(PLAY_TEXT);
-            setStopWatchOn(false);
-            props.onPress({active: false});
-        } else {
-            await musicData.playAsync();
-            isMusicPlaying = true;
-            setPlayButtonText(PAUSE_TEXT);
-            setStopWatchOn(true);
-            props.onPress({active: true});
+    async function pauseRound(musicData) {
+        console.log('PAUSE ROUND');
+        await musicData.pauseAsync();
+        isRoundActive = false;
+        setPlayButtonText(RESUME_TEXT);
+        props.onPress({ active: false });
+    }
 
-            setTimeout(playCombo, AFTER_RESUME_TIME);
+    async function resumeRound(musicData) {
+        console.log('RESUME ROUND');
+        loadAndPlaySound(boxingBell.file);
+        await musicData.playAsync();
+        isRoundActive = true;
+        setPlayButtonText(PAUSE_TEXT);
+        props.onPress({ active: true });
+
+        setTimeout(playCombo, AFTER_RESUME_TIME);
+    }
+
+    async function stopRound(musicData) {
+        if (musicData) {
+            await musicData.stopAsync();
+            await musicData.unloadAsync();
+            setMusicSound(null);
         }
+        isRoundActive = false;
+        setPlayButtonText(PLAY_TEXT);
+
+        // virtual button press
+        props.onPress({ active: false });
     }
 
     async function playCombo() {
-        if (!isMusicPlaying) {
+        if (!isRoundActive) {
             return;
         }
 
@@ -98,11 +116,11 @@ export default function PlayButton(props) {
         if (moveIndex >= combo.length) {
             return;
         }
-        if (!isMusicPlaying) {
+        if (!isRoundActive) {
             return;
         }
 
-        loadAndPlay(combo[moveIndex].file);
+        loadAndPlaySound(combo[moveIndex].file);
         console.log('Load and Play', combo[moveIndex].title);
         setTimeout(() => {
             moveIndex++;
@@ -113,13 +131,11 @@ export default function PlayButton(props) {
     React.useEffect(() => {
         console.log('Use Effect');
 
-        if (musicSound) {
-          return () => {
-            console.log('Unloading Sound Music');
-            musicSound.unloadAsync();
-          }
+        console.log('StopRound?', props);
+        if (props.resetFired) {
+            stopRound(musicSound);
         }
-      }, [musicSound]);
+    });
 
     return (
         <TouchableOpacity
@@ -132,8 +148,8 @@ export default function PlayButton(props) {
 
 const styles = StyleSheet.create({
     roundButton: {
-        width: 100,
-        height: 100,
+        width: 120,
+        height: 120,
         justifyContent: 'center',
         alignItems: 'center',
         padding: 10,
@@ -142,6 +158,7 @@ const styles = StyleSheet.create({
 
     },
     buttonText: {
+        fontSize: 28,
         fontWeight: 'bold',
         color: '#222',
     }

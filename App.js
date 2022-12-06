@@ -1,16 +1,28 @@
+import * as React from 'react';
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, SafeAreaView, TouchableOpacity } from 'react-native';
+import { StyleSheet, Text, SafeAreaView, View } from 'react-native';
 
 import PlayButton from './PlayButton';
+import Stopwatch from './Stopwatch';
 
 export default function App() {
+    const [stopwatch, setStopwatch] = React.useState({
+        active: false
+    });
+
+    function onPlayButtonPress(signal) {
+        setStopwatch(signal);
+    }
+
     return (
         <SafeAreaView style={styles.container}>
             <Text style={styles.text}>
                 Become a Boxing Hero!
             </Text>
 
-            <PlayButton />
+            <Stopwatch active={stopwatch.active} />
+
+            <PlayButton onPress={onPlayButtonPress} />
 
             <StatusBar style="auto" />
         </SafeAreaView>

@@ -30,9 +30,10 @@ function loadAndPlay(file) {
 
 let isMusicPlaying = false;
 
-export default function PlayButton() {
+export default function PlayButton(props) {
     const [musicSound, setMusicSound] = React.useState();
     const [playButtonText, setPlayButtonText] = React.useState(PLAY_TEXT);
+    const [stopWatchOn, setStopWatchOn] = React.useState(props.stopwatchOn);
 
     function playPressedHandler() {
         loadAndPlay(boxingBell.file);
@@ -40,8 +41,14 @@ export default function PlayButton() {
             toggleMusic(musicSound);
             return;
         }
+        kickStart();
+    }
+
+    function kickStart() {
         loadMusic(soundtrack1);
         setPlayButtonText(PAUSE_TEXT);
+        setStopWatchOn(true);
+        props.onPress({active: true});
 
         setTimeout(playCombo, INTRO_TIME);
     }
@@ -60,10 +67,14 @@ export default function PlayButton() {
             await musicData.pauseAsync();
             isMusicPlaying = false;
             setPlayButtonText(PLAY_TEXT);
+            setStopWatchOn(false);
+            props.onPress({active: false});
         } else {
             await musicData.playAsync();
             isMusicPlaying = true;
             setPlayButtonText(PAUSE_TEXT);
+            setStopWatchOn(true);
+            props.onPress({active: true});
 
             setTimeout(playCombo, AFTER_RESUME_TIME);
         }

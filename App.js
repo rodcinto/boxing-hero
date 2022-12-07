@@ -5,6 +5,7 @@ import { StyleSheet, Text, SafeAreaView, View } from 'react-native';
 import PlayButton from './PlayButton';
 import ResetButton from './ResetButton';
 import Stopwatch from './Stopwatch';
+import Settings from './Settings';
 
 
 export default function App() {
@@ -42,10 +43,6 @@ export default function App() {
 
     return (
         <SafeAreaView style={styles.container}>
-            <Text style={styles.text}>
-                Become a Boxing Hero!
-            </Text>
-
             <View style={styles.movesDisplay}>
                 <Text style={styles.moveText}>{moveText}</Text>
             </View>
@@ -60,6 +57,8 @@ export default function App() {
 
             <ResetButton onPress={onResetButtonPress} />
 
+            <Settings />
+
             <StatusBar style="auto" />
         </SafeAreaView>
     );
@@ -71,17 +70,18 @@ const styles = StyleSheet.create({
         margin: 10,
         justifyContent: 'center',
         alignItems: 'center',
-        backgroundColor: '#111',
+        backgroundColor: 'cornflowerblue',
         height: 200,
-        width: '80%'
+        width: '80%',
+        borderRadius: 10
     },
     moveText: {
-        color: 'orangered',
+        color: 'cornsilk',
         fontSize: 50
     },
     container: {
         flex: 1,
-        backgroundColor: '#000',
+        backgroundColor: '#222',
         justifyContent: 'center',
         alignItems: 'center',
     },

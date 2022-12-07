@@ -10,7 +10,7 @@ import {
     TextInput
 } from 'react-native';
 
-import {saveData, readData} from './components/localStorage';
+import {saveData, readData} from '../utils/localStorage';
 
 const defaultSettings = {
     roundTime: 120,

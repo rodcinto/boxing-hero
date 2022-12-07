@@ -3,12 +3,12 @@ import * as React from 'react';
 import { StyleSheet, Text, TouchableOpacity } from 'react-native';
 import { Audio } from 'expo-av';
 
-import { soundtrack1 } from './components/musics/soundtrack1';
-import { boxingBell } from './components/boxingBell';
-import { ding } from './components/ding';
-import { moveSoundList } from './components/moveSounds/moveSoundList';
+import { soundtrack1 } from '../soundData/musics/soundtrack1';
+import { boxingBell } from '../soundData/boxingBell';
+import { ding } from '../soundData/ding';
+import { moveSoundList } from '../soundData/moves/moveSoundList';
 
-import { shuffle } from './components/shuffle';
+import { shuffle } from '../utils/shuffle';
 
 const INTRO_TIME = 3000;
 const AFTER_RESUME_TIME = 2000;

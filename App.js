@@ -2,10 +2,10 @@ import * as React from 'react';
 import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, SafeAreaView, View } from 'react-native';
 
-import PlayButton from './PlayButton';
-import ResetButton from './ResetButton';
-import Stopwatch from './Stopwatch';
-import Settings from './Settings';
+import PlayButton from './components/PlayButton';
+import ResetButton from './components/ResetButton';
+import Stopwatch from './components/Stopwatch';
+import Settings from './components/Settings';
 
 
 export default function App() {

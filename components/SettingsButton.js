@@ -75,7 +75,7 @@ function SettingsModal({ modalVisible, closeModal, currentSettings={} }) {
     );
 }
 
-export default function Settings() {
+export default function SettingsButton() {
     const [modalVisible, setModalVisible] = React.useState(false);
     const [currentSettings, setCurrentSettings] = React.useState({});
 

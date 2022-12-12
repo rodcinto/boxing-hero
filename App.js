@@ -5,7 +5,7 @@ import { StyleSheet, Text, SafeAreaView, View } from 'react-native';
 import PlayButton from './components/PlayButton';
 import ResetButton from './components/ResetButton';
 import Stopwatch from './components/Stopwatch';
-import Settings from './components/Settings';
+import SettingsButton from './components/SettingsButton';
 
 
 export default function App() {
@@ -61,7 +61,7 @@ export default function App() {
 
             <ResetButton onPress={fireResetSignal} />
 
-            <Settings />
+            <SettingsButton />
 
             <StatusBar style="auto" />
         </SafeAreaView>

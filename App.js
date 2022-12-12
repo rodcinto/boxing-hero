@@ -66,6 +66,8 @@ export default function App() {
                 onPress={onPlayButtonPress}
                 resetFired={resetSignal.fired}
                 onMovePlay={onMovePlay}
+                comboSize={appSettings.comboSize}
+                comboSpeed={appSettings.comboSpeed}
             />
 
             <ResetButton onPress={fireResetSignal} />

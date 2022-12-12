@@ -9,7 +9,6 @@ import { ding } from '../soundData/ding';
 import { moveSoundList } from '../soundData/moves/moveSoundList';
 
 import { shuffle } from '../utils/shuffle';
-import { defaultSettings, loadSettings } from '../utils/settings';
 
 const PLAY_TEXT = 'PLAY';
 const PAUSE_TEXT = 'PAUSE';
@@ -33,12 +32,10 @@ export default function PlayButton(props) {
     const MOVE_GAP_TIME = 500;
 
     const COMBO_MIN = 1;
-    let COMBO_MAX = defaultSettings.comboSize;
-    let COMBO_GAP_TIME = defaultSettings.comboSpeed * 1000;
+    let COMBO_MAX = props.comboSize;
+    let COMBO_GAP_TIME = props.comboSpeed * 1000;
 
     async function playPressedHandler() {
-        await updatePreferences();
-
         if (musicSound) {
             if (isRoundActive === true) {
                 pauseRound(musicSound);
@@ -47,14 +44,8 @@ export default function PlayButton(props) {
             }
             return;
         }
+        props.onPress({ active: true });
         startRound();
-    }
-
-    async function updatePreferences() {
-        const currentSettings = await loadSettings();
-        console.log('Updated settings', currentSettings);
-        COMBO_GAP_TIME = (currentSettings.comboSpeed ?? defaultSettings.comboSpeed) * 1000;
-        COMBO_MAX = (loadSettings.comboSize ?? defaultSettings.comboSize);
     }
 
     function startRound() {
@@ -62,7 +53,6 @@ export default function PlayButton(props) {
         loadAndPlaySound(boxingBell.file);
         loadMusic(soundtrack1);
         setPlayButtonText(PAUSE_TEXT);
-        props.onPress({ active: true });
 
         setTimeout(playCombo, INTRO_TIME);
     }

@@ -12,12 +12,12 @@ export async function saveData(fieldKey, value) {
 }
 export async function readData(fieldKey) {
     try {
-        const value = await AsyncStorage.getItem(STORAGE_KEY + fieldKey);
-        if (value === null) {
-            return defaultSettings[fieldKey];
-        }
-        return value;
+        return await AsyncStorage.getItem(STORAGE_KEY + fieldKey);
       } catch (e) {
         console.log('Failed to fetch the input from storage', fieldKey);
       }
+}
+
+export async function readInteger(fieldKey) {
+    return await readData(fieldKey).then(value => parseInt(value));
 }

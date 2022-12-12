@@ -1,4 +1,4 @@
-import {readData} from './localStorage';
+import { readInteger } from './localStorage';
 
 export const defaultSettings = {
     roundTime: 0,
@@ -7,9 +7,15 @@ export const defaultSettings = {
 }
 
 export async function loadSettings() {
-    return {
-        roundTime: await readData('roundTime'),
-        comboSpeed: await readData('comboSpeed'),
-        comboSize: await readData('comboSize')
-    };
+    const parsedSettings = {};
+    const parsedRoundTime = await readInteger('roundTime').then(roundTime => {
+        return roundTime ?? null
+    });
+    if (parsedRoundTime) {
+        parsedSettings.roundTime = parsedRoundTime;
+    }
+    parsedSettings.comboSpeed = await readInteger('comboSpeed'),
+    parsedSettings.comboSize = await readInteger('comboSize')
+
+    return parsedSettings;
 }

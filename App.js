@@ -7,17 +7,26 @@ import ResetButton from './components/ResetButton';
 import Stopwatch from './components/Stopwatch';
 import SettingsButton from './components/SettingsButton';
 
+import { defaultSettings, loadSettings } from './utils/settings';
 
 export default function App() {
+    const [appSettings, setAppSettings] = React.useState(defaultSettings);
+
     const [stopwatch, setStopwatch] = React.useState({
         active: false,
     });
+
     const [resetSignal, setResetSignal] = React.useState({
         fired: undefined
     });
+
     const [moveText, setMoveText] = React.useState('');
 
-    function onPlayButtonPress(signal) {
+    async function onPlayButtonPress(signal) {
+        setAppSettings({
+            ...appSettings,
+            ...await loadSettings()
+        });
         setStopwatch(signal);
     }
 

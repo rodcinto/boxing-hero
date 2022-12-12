@@ -21,7 +21,7 @@ export default function App() {
         setStopwatch(signal);
     }
 
-    function onResetButtonPress() {
+    function fireResetSignal() {
         console.log('SHOULD RESET');
         setResetSignal({
             fired: true
@@ -47,7 +47,11 @@ export default function App() {
                 <Text style={styles.moveText}>{moveText}</Text>
             </View>
 
-            <Stopwatch active={stopwatch.active} resetFired={resetSignal.fired} />
+            <Stopwatch
+                active={stopwatch.active}
+                resetFired={resetSignal.fired}
+                onTimerZero={fireResetSignal}
+            />
 
             <PlayButton
                 onPress={onPlayButtonPress}
@@ -55,7 +59,7 @@ export default function App() {
                 onMovePlay={onMovePlay}
             />
 
-            <ResetButton onPress={onResetButtonPress} />
+            <ResetButton onPress={fireResetSignal} />
 
             <Settings />
 

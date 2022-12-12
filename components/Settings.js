@@ -11,12 +11,7 @@ import {
 } from 'react-native';
 
 import {saveData, readData} from '../utils/localStorage';
-
-const defaultSettings = {
-    roundTime: 120,
-    comboSpeed: 5,
-    comboSize: 5
-};
+import { defaultSettings, loadSettings } from '../utils/settings';
 
 function SettingsTextInput({ label, fieldKey, placeholder, onChangeText, value }) {
     function onChange(value) {
@@ -85,11 +80,7 @@ export default function Settings() {
     const [currentSettings, setCurrentSettings] = React.useState({});
 
     async function settingsPressHandler() {
-        setCurrentSettings({
-            roundTime: await readData('roundTime'),
-            comboSpeed: await readData('comboSpeed'),
-            comboSize: await readData('comboSize')
-        });
+        setCurrentSettings(await loadSettings());
         setModalVisible(true);
     }
     return (

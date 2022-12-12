@@ -9,14 +9,7 @@ import { ding } from '../soundData/ding';
 import { moveSoundList } from '../soundData/moves/moveSoundList';
 
 import { shuffle } from '../utils/shuffle';
-
-const INTRO_TIME = 3000;
-const AFTER_RESUME_TIME = 2000;
-const MOVE_GAP_TIME = 500;
-const COMBO_GAP_TIME = 3500;
-
-const COMBO_MIN = 1;
-const COMBO_MAX = 5;
+import { defaultSettings, loadSettings } from '../utils/settings';
 
 const PLAY_TEXT = 'PLAY';
 const PAUSE_TEXT = 'PAUSE';
@@ -35,7 +28,17 @@ export default function PlayButton(props) {
     const [musicSound, setMusicSound] = React.useState();
     const [playButtonText, setPlayButtonText] = React.useState(PLAY_TEXT);
 
-    function playPressedHandler() {
+    const INTRO_TIME = 3000;
+    const AFTER_RESUME_TIME = 2000;
+    const MOVE_GAP_TIME = 500;
+
+    const COMBO_MIN = 1;
+    let COMBO_MAX = defaultSettings.comboSize;
+    let COMBO_GAP_TIME = defaultSettings.comboSpeed * 1000;
+
+    async function playPressedHandler() {
+        await updatePreferences();
+
         if (musicSound) {
             if (isRoundActive === true) {
                 pauseRound(musicSound);
@@ -45,6 +48,13 @@ export default function PlayButton(props) {
             return;
         }
         startRound();
+    }
+
+    async function updatePreferences() {
+        const currentSettings = await loadSettings();
+        console.log('Updated settings', currentSettings);
+        COMBO_GAP_TIME = (currentSettings.comboSpeed ?? defaultSettings.comboSpeed) * 1000;
+        COMBO_MAX = (loadSettings.comboSize ?? defaultSettings.comboSize);
     }
 
     function startRound() {

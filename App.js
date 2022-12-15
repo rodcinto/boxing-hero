@@ -18,19 +18,12 @@ export default function App() {
     });
 
     async function onPlayButtonPress(timerActive) {
-        // setAppSettings({
-        //     ...appSettings,
-        //     ...await loadSettings()
-        // });
-
-        let newState = { timerActive: timerActive };
-        if (timerActive) {
-            newState.reset = false;
-        }
-
-        setState({
-            ...state,
-            ...newState
+        setState(prevState => {
+            let newState = { timerActive: timerActive };
+            if (timerActive) {
+                newState.reset = false;
+            }
+            return ({ ...prevState, ...newState });
         });
     }
 
@@ -48,9 +41,24 @@ export default function App() {
         });
     }
 
+    function updateSettings(newSettings) {
+        setAppSettings(oldSettings => {
+            console.log('New Settings', newSettings);
+            return ({ ...oldSettings, ...newSettings });
+        });
+    }
+
     React.useEffect(() => {
-        console.log('APP STATE', state, appSettings);
-    }, [state]);
+        loadSettings().then((loadedSettings) => setAppSettings({
+            ...appSettings,
+            ...loadedSettings
+        }));
+    }, []);
+
+    React.useEffect(() => {
+        console.log('AppSettings updated:', appSettings);
+        fireResetSignal();
+    }, [appSettings]);
 
     return (
         <SafeAreaView style={styles.container}>
@@ -75,7 +83,7 @@ export default function App() {
 
             <ResetButton onPress={fireResetSignal} />
 
-            <SettingsButton />
+            <SettingsButton onUpdate={updateSettings} />
 
             <StatusBar style="auto" />
         </SafeAreaView>

@@ -10,11 +10,14 @@ import {
     TextInput
 } from 'react-native';
 
-import {saveData, readData} from '../utils/localStorage';
+import { saveData } from '../utils/localStorage';
 import { defaultSettings, loadSettings } from '../utils/settings';
 
 function SettingsTextInput({ label, fieldKey, placeholder, onChangeText, value }) {
     function onChange(value) {
+        if (!parseInt(value)) {
+            value = 0;
+        }
         onChangeText(fieldKey, value);
     }
     return (
@@ -22,7 +25,7 @@ function SettingsTextInput({ label, fieldKey, placeholder, onChangeText, value }
             <Text style={formStyles.label}>{label}</Text>
             <TextInput
                 keyboardType='numeric'
-                maxLength={3}
+                maxLength={4}
                 style={formStyles.textInput}
                 onChangeText={onChange}
                 placeholder={placeholder}
@@ -32,7 +35,18 @@ function SettingsTextInput({ label, fieldKey, placeholder, onChangeText, value }
     );
 }
 
-function SettingsModal({ modalVisible, closeModal, currentSettings={} }) {
+function SettingsModal({ modalVisible, closeModal, currentSettings = {} }) {
+    const [newSettings, setNewSettings] = React.useState(currentSettings);
+    function updateSettings(fieldKey, value) {
+        saveData(fieldKey, value);
+
+        setNewSettings(prevSettings => {
+            const field = {};
+            field[fieldKey] = value
+            return ({ ...prevSettings, ...field });
+        });
+    }
+
     return (
         <Modal
             animationType="slide"
@@ -46,7 +60,7 @@ function SettingsModal({ modalVisible, closeModal, currentSettings={} }) {
                         label='Round Time (seconds)'
                         fieldKey='roundTime'
                         placeholder='Unlimited'
-                        onChangeText={saveData}
+                        onChangeText={updateSettings}
                         value={currentSettings.roundTime ?? defaultSettings.roundTime}
                     />
                     <SettingsTextInput
@@ -65,7 +79,7 @@ function SettingsModal({ modalVisible, closeModal, currentSettings={} }) {
                     />
                     <Pressable
                         style={styles.buttonClose}
-                        onPress={() => closeModal(!modalVisible)}
+                        onPress={() => closeModal(newSettings)}
                     >
                         <Text style={styles.closeModalText}>CLOSE</Text>
                     </Pressable>
@@ -75,7 +89,7 @@ function SettingsModal({ modalVisible, closeModal, currentSettings={} }) {
     );
 }
 
-export default function SettingsButton() {
+export default function SettingsButton(props) {
     const [modalVisible, setModalVisible] = React.useState(false);
     const [currentSettings, setCurrentSettings] = React.useState({});
 
@@ -83,12 +97,16 @@ export default function SettingsButton() {
         setCurrentSettings(await loadSettings());
         setModalVisible(true);
     }
+    function closeModalHandler(newSettings) {
+        props.onUpdate(newSettings);
+        setModalVisible(false);
+    }
     return (
         <>
             <SettingsModal
-            modalVisible={modalVisible}
-            closeModal={setModalVisible}
-            currentSettings={currentSettings}
+                modalVisible={modalVisible}
+                closeModal={closeModalHandler}
+                currentSettings={currentSettings}
             />
             <TouchableOpacity
                 onPress={settingsPressHandler}

@@ -1,70 +1,73 @@
 import * as React from 'react';
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, SafeAreaView, View } from 'react-native';
+import { StyleSheet, Text, SafeAreaView, View, TouchableOpacity } from 'react-native';
 
 import PlayButton from './components/PlayButton';
 import ResetButton from './components/ResetButton';
-import Stopwatch from './components/Stopwatch';
+import TimerDisplay from './components/TimerDisplay';
 import SettingsButton from './components/SettingsButton';
 
 import { defaultSettings, loadSettings } from './utils/settings';
 
 export default function App() {
     const [appSettings, setAppSettings] = React.useState(defaultSettings);
-
-    const [stopwatch, setStopwatch] = React.useState({
-        active: false,
+    const [state, setState] = React.useState({
+        timerActive: false,
+        reset: false,
+        moveText: ''
     });
 
-    const [resetSignal, setResetSignal] = React.useState({
-        fired: undefined
-    });
+    async function onPlayButtonPress(timerActive) {
+        // setAppSettings({
+        //     ...appSettings,
+        //     ...await loadSettings()
+        // });
 
-    const [moveText, setMoveText] = React.useState('');
+        let newState = { timerActive: timerActive };
+        if (timerActive) {
+            newState.reset = false;
+        }
 
-    async function onPlayButtonPress(signal) {
-        setAppSettings({
-            ...appSettings,
-            ...await loadSettings()
+        setState({
+            ...state,
+            ...newState
         });
-        setStopwatch(signal);
     }
 
     function fireResetSignal() {
-        console.log('SHOULD RESET');
-        setResetSignal({
-            fired: true
+        setState({
+            timerActive: false,
+            reset: true
         });
     }
 
     function onMovePlay(text) {
-        setMoveText(text);
+        setState({
+            ...state,
+            moveText: text
+        });
     }
 
     React.useEffect(() => {
-        if (resetSignal.fired === true) {
-            console.log('RESET FIRED');
-            setResetSignal({
-                fired: false
-            });
-        }
-    }, [resetSignal]);
+        console.log('APP STATE', state, appSettings);
+    }, [state]);
 
     return (
         <SafeAreaView style={styles.container}>
             <View style={styles.movesDisplay}>
-                <Text style={styles.moveText}>{moveText}</Text>
+                <Text style={styles.moveText}>{state.moveText}</Text>
             </View>
 
-            <Stopwatch
-                active={stopwatch.active}
-                resetFired={resetSignal.fired}
+            <TimerDisplay
+                active={state.timerActive}
+                resetFired={state.reset}
                 onTimerZero={fireResetSignal}
+                roundTime={appSettings.roundTime}
             />
 
             <PlayButton
                 onPress={onPlayButtonPress}
-                resetFired={resetSignal.fired}
+                resetFired={state.reset}
                 onMovePlay={onMovePlay}
                 comboSize={appSettings.comboSize}
                 comboSpeed={appSettings.comboSpeed}

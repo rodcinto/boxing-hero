@@ -44,7 +44,7 @@ export default function PlayButton(props) {
             }
             return;
         }
-        props.onPress({ active: true });
+
         startRound();
     }
 
@@ -55,6 +55,7 @@ export default function PlayButton(props) {
         setPlayButtonText(PAUSE_TEXT);
 
         setTimeout(playCombo, INTRO_TIME);
+        props.onPress(true);
     }
 
     function loadMusic(musicData) {
@@ -71,7 +72,7 @@ export default function PlayButton(props) {
         await musicData.pauseAsync();
         isRoundActive = false;
         setPlayButtonText(RESUME_TEXT);
-        props.onPress({ active: false });
+        props.onPress(false);
     }
 
     async function resumeRound(musicData) {
@@ -80,7 +81,7 @@ export default function PlayButton(props) {
         await musicData.playAsync();
         isRoundActive = true;
         setPlayButtonText(PAUSE_TEXT);
-        props.onPress({ active: true });
+        props.onPress(true);
 
         setTimeout(playCombo, AFTER_RESUME_TIME);
     }
@@ -95,7 +96,6 @@ export default function PlayButton(props) {
         setPlayButtonText(PLAY_TEXT);
 
         // virtual button press
-        props.onPress({ active: false });
         props.onMovePlay('');
     }
 
@@ -135,16 +135,17 @@ export default function PlayButton(props) {
     }
 
     React.useEffect(() => {
-        console.log('PlayButtonProps', props);
         if (props.resetFired) {
+            console.log('PlayButton Reset Fired. Props:', props);
             stopRound(musicSound);
         }
-    });
+    }, [props.resetFired]);
 
     return (
         <TouchableOpacity
             onPress={playPressedHandler}
-            style={styles.roundButton}>
+            style={styles.roundButton}
+        >
             <Text style={styles.buttonText}>{playButtonText}</Text>
         </TouchableOpacity>
     );

@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, SafeAreaView, View, TouchableOpacity } from 'react-native';
+import { StyleSheet, Text, SafeAreaView, View } from 'react-native';
 
 import PlayButton from './components/PlayButton';
 import ResetButton from './components/ResetButton';
@@ -10,17 +10,17 @@ import SettingsButton from './components/SettingsButton';
 import { defaultSettings, loadSettings } from './utils/settings';
 
 export default function App() {
-    const [appSettings, setAppSettings] = React.useState(defaultSettings);
     const [state, setState] = React.useState({
-        timerActive: false,
+        roundActive: false,
         reset: false,
-        moveText: ''
+        moveText: '',
+        appSettings: defaultSettings
     });
 
-    async function onPlayButtonPress(timerActive) {
+    async function onPlayButtonPress(active) {
         setState(prevState => {
-            let newState = { timerActive: timerActive };
-            if (timerActive) {
+            const newState = { roundActive: active };
+            if (active) {
                 newState.reset = false;
             }
             return ({ ...prevState, ...newState });
@@ -28,37 +28,34 @@ export default function App() {
     }
 
     function fireResetSignal() {
-        setState({
-            timerActive: false,
-            reset: true
-        });
+        setState(prevState => (
+            {
+                ...prevState,
+                roundActive: false,
+                reset: true
+            }
+        ));
     }
 
     function onMovePlay(text) {
-        setState({
-            ...state,
-            moveText: text
-        });
+        setState(prevState => ({ ...prevState, moveText: text }));
     }
 
     function updateSettings(newSettings) {
-        setAppSettings(oldSettings => {
+        setState(prevState => {
             console.log('New Settings', newSettings);
-            return ({ ...oldSettings, ...newSettings });
+            return ({ ...prevState, appSettings: { ...state.appSettings, ...newSettings } });
         });
     }
 
     React.useEffect(() => {
-        loadSettings().then((loadedSettings) => setAppSettings({
-            ...appSettings,
-            ...loadedSettings
-        }));
+        loadSettings().then((loadedSettings) => updateSettings(loadedSettings));
     }, []);
 
     React.useEffect(() => {
-        console.log('AppSettings updated:', appSettings);
+        console.log('AppSettings updated:', state.appSettings);
         fireResetSignal();
-    }, [appSettings]);
+    }, [state.appSettings]);
 
     return (
         <SafeAreaView style={styles.container}>
@@ -67,18 +64,19 @@ export default function App() {
             </View>
 
             <TimerDisplay
-                active={state.timerActive}
+                active={state.roundActive}
                 resetFired={state.reset}
                 onTimerZero={fireResetSignal}
-                roundTime={appSettings.roundTime}
+                roundTime={state.appSettings.roundTime}
             />
 
             <PlayButton
+                active={state.roundActive}
                 onPress={onPlayButtonPress}
                 resetFired={state.reset}
                 onMovePlay={onMovePlay}
-                comboSize={appSettings.comboSize}
-                comboSpeed={appSettings.comboSpeed}
+                comboSize={state.appSettings.comboSize}
+                comboSpeed={state.appSettings.comboSpeed}
             />
 
             <ResetButton onPress={fireResetSignal} />

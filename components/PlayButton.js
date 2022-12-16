@@ -21,11 +21,11 @@ function loadAndPlaySound(file) {
         });
 }
 
-let isRoundActive = false;
-
 export default function PlayButton(props) {
     const [musicSound, setMusicSound] = React.useState();
     const [playButtonText, setPlayButtonText] = React.useState(PLAY_TEXT);
+    const [comboTimeout, setComboTimeout] = React.useState();
+    const [moveTimeout, setMoveTimeout] = React.useState();
 
     const INTRO_TIME = 3000;
     const AFTER_RESUME_TIME = 2000;
@@ -37,7 +37,7 @@ export default function PlayButton(props) {
 
     async function playPressedHandler() {
         if (musicSound) {
-            if (isRoundActive === true) {
+            if (props.active) {
                 pauseRound(musicSound);
             } else {
                 resumeRound(musicSound);
@@ -49,13 +49,13 @@ export default function PlayButton(props) {
     }
 
     function startRound() {
-        console.log('START ROUND');
+        props.onPress(true);
+
         loadAndPlaySound(boxingBell.file);
         loadMusic(soundtrack1);
         setPlayButtonText(PAUSE_TEXT);
 
-        setTimeout(playCombo, INTRO_TIME);
-        props.onPress(true);
+        console.log('START ROUND', props);
     }
 
     function loadMusic(musicData) {
@@ -63,27 +63,24 @@ export default function PlayButton(props) {
             .then(({ sound }) => {
                 setMusicSound(sound);
                 sound.playAsync();
-                isRoundActive = true;
             });
     }
 
     async function pauseRound(musicData) {
-        console.log('PAUSE ROUND');
-        await musicData.pauseAsync();
-        isRoundActive = false;
-        setPlayButtonText(RESUME_TEXT);
         props.onPress(false);
+        await musicData.pauseAsync();
+        setPlayButtonText(RESUME_TEXT);
+
+        console.log('PAUSE ROUND', props);
     }
 
     async function resumeRound(musicData) {
-        console.log('RESUME ROUND');
+        props.onPress(true);
         loadAndPlaySound(boxingBell.file);
         await musicData.playAsync();
-        isRoundActive = true;
         setPlayButtonText(PAUSE_TEXT);
-        props.onPress(true);
 
-        setTimeout(playCombo, AFTER_RESUME_TIME);
+        console.log('RESUME ROUND', props);
     }
 
     async function stopRound(musicData) {
@@ -92,24 +89,18 @@ export default function PlayButton(props) {
             await musicData.unloadAsync();
             setMusicSound(null);
         }
-        isRoundActive = false;
         setPlayButtonText(PLAY_TEXT);
 
-        // virtual button press
         props.onMovePlay('');
     }
 
     async function playCombo() {
-        if (!isRoundActive) {
-            return;
-        }
-
         const combo = shuffle(moveSoundList, COMBO_MAX, COMBO_MIN);
         combo.push(ding);
         console.log('Combo:', combo);
 
         playMoveSet(combo).then(() => {
-            setTimeout(playCombo, COMBO_GAP_TIME);
+            setComboTimeout(setTimeout(playCombo, COMBO_GAP_TIME));
         });
     }
 
@@ -117,21 +108,19 @@ export default function PlayButton(props) {
         if (moveIndex >= combo.length) {
             return;
         }
-        if (!isRoundActive) {
-            return;
-        }
 
         const currentMove = combo[moveIndex];
 
         loadAndPlaySound(currentMove.file);
-        // console.log('Load and Play', currentMove.title);
+        console.log('Load and Play', currentMove.title);
         if (currentMove.title !== 'Ding') {
             props.onMovePlay(combo[moveIndex].title.toUpperCase());
+            // props.onMovePlay('qwer' + moveIndex);
         }
-        setTimeout(() => {
+        setMoveTimeout(setTimeout(() => {
             moveIndex++;
             playMoveSet(combo, moveIndex);
-        }, MOVE_GAP_TIME);
+        }, MOVE_GAP_TIME));
     }
 
     React.useEffect(() => {
@@ -140,6 +129,17 @@ export default function PlayButton(props) {
             stopRound(musicSound);
         }
     }, [props.resetFired]);
+
+    React.useEffect(() => {
+        if (props.active) {
+            // setTimeout(playCombo, INTRO_TIME);
+            // setTimeout(playCombo, AFTER_RESUME_TIME);
+            setComboTimeout(setTimeout(playCombo, INTRO_TIME));
+        } else {
+            clearTimeout(comboTimeout);
+            clearTimeout(moveTimeout);
+        }
+    }, [props.active]);
 
     return (
         <TouchableOpacity

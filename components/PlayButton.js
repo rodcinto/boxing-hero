@@ -36,6 +36,8 @@ export default function PlayButton(props) {
     let COMBO_GAP_TIME = props.comboSpeed * 1000;
 
     async function playPressedHandler() {
+        props.onPress();
+
         if (musicSound) {
             if (props.active) {
                 pauseRound(musicSound);
@@ -49,8 +51,6 @@ export default function PlayButton(props) {
     }
 
     function startRound() {
-        props.onPress(true);
-
         loadAndPlaySound(boxingBell.file);
         loadMusic(soundtrack1);
         setPlayButtonText(PAUSE_TEXT);
@@ -67,7 +67,6 @@ export default function PlayButton(props) {
     }
 
     async function pauseRound(musicData) {
-        props.onPress(false);
         await musicData.pauseAsync();
         setPlayButtonText(RESUME_TEXT);
 
@@ -75,7 +74,6 @@ export default function PlayButton(props) {
     }
 
     async function resumeRound(musicData) {
-        props.onPress(true);
         loadAndPlaySound(boxingBell.file);
         await musicData.playAsync();
         setPlayButtonText(PAUSE_TEXT);

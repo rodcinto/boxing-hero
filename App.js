@@ -9,52 +9,78 @@ import SettingsButton from './components/SettingsButton';
 
 import { defaultSettings, loadSettings } from './utils/settings';
 
-export default function App() {
-    const [state, setState] = React.useState({
-        roundActive: false,
-        reset: false,
-        moveText: '',
-        appSettings: defaultSettings
-    });
+const initialState = {
+    roundActive: false,
+    reset: false,
+    moveText: '',
+    appSettings: defaultSettings
+};
 
-    async function onPlayButtonPress(active) {
-        setState(prevState => {
-            const newState = { roundActive: active };
-            if (active) {
-                newState.reset = false;
-            }
-            return ({ ...prevState, ...newState });
-        });
+function reducer(state, action) {
+    switch (action.type) {
+        case 'updateSettings':
+            console.log('UpdateSettings', action);
+            return {
+                ...state,
+                appSettings: {
+                    roundTime: action.value.roundTime ?? 0,
+                    comboSize: action.value.comboSize,
+                    comboSpeed: action.value.comboSpeed,
+                }
+            };
+        case 'updateMove':
+            console.log('updateMove');
+            return { ...state, moveText: action.value };
+        case 'start':
+            console.log('Start');
+            return { ...state, roundActive: true, reset: false };
+        case 'pause':
+            console.log('Pause');
+            return { ...state, roundActive: false, reset: false };
+        case 'reset':
+            console.log('Reset');
+            return { ...state, roundActive: false, reset: true };
+        default:
+            throw new Error('I do not know this action');
     }
+}
 
-    function fireResetSignal() {
-        setState(prevState => (
-            {
-                ...prevState,
-                roundActive: false,
-                reset: true
-            }
-        ));
+export default function App() {
+    const [state, dispatch] = React.useReducer(reducer, initialState);
+
+    async function onPlayButtonPress() {
+        if (state.roundActive) {
+            dispatch({ type: 'pause' });
+            return;
+        }
+        dispatch({ type: 'start' });
     }
 
     function onMovePlay(text) {
-        setState(prevState => ({ ...prevState, moveText: text }));
+        dispatch({ type: 'updateMove', value: text });
     }
 
     function updateSettings(newSettings) {
-        setState(prevState => {
-            console.log('New Settings', newSettings);
-            return ({ ...prevState, appSettings: { ...state.appSettings, ...newSettings } });
+        console.log('New Settings', newSettings);
+        dispatch({
+            type: 'updateSettings',
+            value: newSettings
         });
     }
 
     React.useEffect(() => {
-        loadSettings().then((loadedSettings) => updateSettings(loadedSettings));
+        loadSettings().then((loadedSettings) => {
+            console.log('Loaded settings', loadedSettings);
+            return dispatch({
+                type: 'updateSettings',
+                value: loadedSettings
+            });
+        });
     }, []);
 
     React.useEffect(() => {
-        console.log('AppSettings updated:', state.appSettings);
-        fireResetSignal();
+        console.log('AppSettings updated:', state);
+        dispatch({ type: 'reset' });
     }, [state.appSettings]);
 
     return (
@@ -66,7 +92,7 @@ export default function App() {
             <TimerDisplay
                 active={state.roundActive}
                 resetFired={state.reset}
-                onTimerZero={fireResetSignal}
+                onTimerZero={() => dispatch({ type: 'reset' })}
                 roundTime={state.appSettings.roundTime}
             />
 
@@ -79,7 +105,7 @@ export default function App() {
                 comboSpeed={state.appSettings.comboSpeed}
             />
 
-            <ResetButton onPress={fireResetSignal} />
+            <ResetButton onPress={() => dispatch({ type: 'reset' })} />
 
             <SettingsButton onUpdate={updateSettings} />
 

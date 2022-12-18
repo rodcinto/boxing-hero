@@ -8,6 +8,7 @@ import TimerDisplay from './components/TimerDisplay';
 import SettingsButton from './components/SettingsButton';
 
 import { defaultSettings, loadSettings } from './utils/settings';
+import MoveDisplay from './components/MoveDisplay';
 
 const initialState = {
     roundActive: false,
@@ -28,9 +29,6 @@ function reducer(state, action) {
                     comboSpeed: action.value.comboSpeed,
                 }
             };
-        case 'updateMove':
-            console.log('updateMove');
-            return { ...state, moveText: action.value };
         case 'start':
             console.log('Start');
             return { ...state, roundActive: true, reset: false };
@@ -54,10 +52,6 @@ export default function App() {
             return;
         }
         dispatch({ type: 'start' });
-    }
-
-    function onMovePlay(text) {
-        dispatch({ type: 'updateMove', value: text });
     }
 
     function updateSettings(newSettings) {
@@ -85,9 +79,12 @@ export default function App() {
 
     return (
         <SafeAreaView style={styles.container}>
-            <View style={styles.movesDisplay}>
-                <Text style={styles.moveText}>{state.moveText}</Text>
-            </View>
+            <MoveDisplay
+                active={state.roundActive}
+                resetFired={state.reset}
+                comboSize={state.appSettings.comboSize}
+                comboSpeed={state.appSettings.comboSpeed}
+            />
 
             <TimerDisplay
                 active={state.roundActive}
@@ -99,10 +96,6 @@ export default function App() {
             <PlayButton
                 active={state.roundActive}
                 onPress={onPlayButtonPress}
-                resetFired={state.reset}
-                onMovePlay={onMovePlay}
-                comboSize={state.appSettings.comboSize}
-                comboSpeed={state.appSettings.comboSpeed}
             />
 
             <ResetButton onPress={() => dispatch({ type: 'reset' })} />
@@ -115,20 +108,6 @@ export default function App() {
 }
 
 const styles = StyleSheet.create({
-    movesDisplay: {
-        padding: 10,
-        margin: 10,
-        justifyContent: 'center',
-        alignItems: 'center',
-        backgroundColor: 'cornflowerblue',
-        height: 200,
-        width: '80%',
-        borderRadius: 10
-    },
-    moveText: {
-        color: 'cornsilk',
-        fontSize: 50
-    },
     container: {
         flex: 1,
         backgroundColor: '#222',

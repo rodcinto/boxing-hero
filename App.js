@@ -95,6 +95,7 @@ export default function App() {
 
             <PlayButton
                 active={state.roundActive}
+                reset={state.reset}
                 onPress={onPlayButtonPress}
             />
 

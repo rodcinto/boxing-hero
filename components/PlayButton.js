@@ -12,13 +12,19 @@ export default function PlayButton(props) {
 
     async function playPressedHandler() {
         props.onPress();
+    }
 
+    React.useEffect(() => {
         if (props.active) {
             setPlayButtonText(PAUSE_TEXT);
         } else {
-            setPlayButtonText(RESUME_TEXT);
+            if (props.reset) {
+                setPlayButtonText(PLAY_TEXT);
+            } else {
+                setPlayButtonText(RESUME_TEXT);
+            }
         }
-    }
+    }, [props.active, props.reset])
 
     return (
         <TouchableOpacity

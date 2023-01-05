@@ -8,12 +8,7 @@ export const defaultSettings = {
 
 export async function loadSettings() {
     const parsedSettings = {};
-    const parsedRoundTime = await readInteger('roundTime').then(roundTime => {
-        return roundTime ?? null
-    });
-    if (parsedRoundTime) {
-        parsedSettings.roundTime = parsedRoundTime;
-    }
+    parsedSettings.roundTime  = await readInteger('roundTime');
     parsedSettings.comboSpeed = await readInteger('comboSpeed'),
     parsedSettings.comboSize = await readInteger('comboSize')
 

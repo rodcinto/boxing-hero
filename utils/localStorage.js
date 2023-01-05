@@ -19,5 +19,5 @@ export async function readData(fieldKey) {
 }
 
 export async function readInteger(fieldKey) {
-    return await readData(fieldKey).then(value => parseInt(value));
+    return await readData(fieldKey).then(value => parseInt(value ?? 0));
 }

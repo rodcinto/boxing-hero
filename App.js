@@ -21,13 +21,15 @@ function reducer(state, action) {
     switch (action.type) {
         case 'updateSettings':
             console.log('UpdateSettings', action);
+            const newSettings = {};
+            if (action.value) {
+                newSettings.roundTime = action.value.roundTime ?? defaultSettings.roundTime;
+                newSettings.comboSize = action.value.comboSize ?? defaultSettings.comboSize;
+                newSettings.comboSpeed = action.value.comboSpeed ?? defaultSettings.comboSpeed;
+            }
             return {
                 ...state,
-                appSettings: {
-                    roundTime: action.value.roundTime ?? 0,
-                    comboSize: action.value.comboSize,
-                    comboSpeed: action.value.comboSpeed,
-                }
+                appSettings: newSettings
             };
         case 'start':
             console.log('Start');
@@ -56,6 +58,7 @@ export default function App() {
 
     function updateSettings(newSettings) {
         console.log('New Settings', newSettings);
+
         dispatch({
             type: 'updateSettings',
             value: newSettings

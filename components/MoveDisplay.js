@@ -1,7 +1,7 @@
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
-import { Audio } from 'expo-av';
+import player from '../soundPlayer/player';
 
 import { soundtrack1 } from '../soundData/musics/soundtrack1';
 import { boxingBell } from '../soundData/boxingBell';
@@ -10,15 +10,9 @@ import { moveSoundList } from '../soundData/moves/moveSoundList';
 
 import { shuffle } from '../utils/shuffle';
 
-function loadAndPlaySound(file) {
-    Audio.Sound.createAsync(file)
-        .then(({ sound }) => {
-            sound.playAsync();
-        });
-}
-
 export default function MoveDisplay(props) {
-    const [musicSound, setMusicSound] = React.useState();
+    const [hasStarted, setHasStarted] = React.useState(false);
+    const [music, setMusic] = React.useState();
     const [comboTimeout, setComboTimeout] = React.useState();
     const [moveTimeout, setMoveTimeout] = React.useState();
     const [moveText, setMoveText] = React.useState();
@@ -32,17 +26,18 @@ export default function MoveDisplay(props) {
     let COMBO_GAP_TIME = props.comboSpeed * 1000;
 
     function startRound() {
-        loadAndPlaySound(boxingBell.file);
-        loadMusic(soundtrack1);
+        setHasStarted(true);
+        player.playFile(boxingBell.file);
+        loadMusic();
 
         setComboTimeout(setTimeout(playCombo, INTRO_TIME));
 
         console.log('START ROUND', props);
     }
 
-    async function pauseRound(musicData) {
-        if (musicData) {
-            await musicData.pauseAsync();
+    async function pauseRound() {
+        if (hasStarted) {
+            await player.pauseSound(music);
         }
 
         clearTimeout(comboTimeout);
@@ -51,20 +46,20 @@ export default function MoveDisplay(props) {
         console.log('PAUSE ROUND', props);
     }
 
-    async function resumeRound(musicData) {
-        loadAndPlaySound(boxingBell.file);
-        await musicData.playAsync();
+    async function resumeRound() {
+        player.playFile(boxingBell.file);
+        await player.playSound(music);
 
         setComboTimeout(setTimeout(playCombo, AFTER_RESUME_TIME));
 
         console.log('RESUME ROUND', props);
     }
 
-    async function stopRound(musicData) {
-        if (musicData) {
-            await musicData.stopAsync();
-            await musicData.unloadAsync();
-            setMusicSound(null);
+    async function stopRound() {
+        if (hasStarted) {
+            await player.stopSound(music);
+            setMusic(null);
+            setHasStarted(false);
         }
 
         clearTimeout(comboTimeout);
@@ -73,12 +68,10 @@ export default function MoveDisplay(props) {
         setMoveText('');
     }
 
-    function loadMusic(musicData) {
-        Audio.Sound.createAsync(musicData.file)
-            .then(({ sound }) => {
-                setMusicSound(sound);
-                sound.playAsync();
-            });
+    async function loadMusic() {
+        const sound = await player.playFile(soundtrack1.file);
+        console.log("MUSIC SOUND", sound);
+        setMusic(sound);
     }
 
     async function playCombo() {
@@ -98,8 +91,8 @@ export default function MoveDisplay(props) {
 
         const currentMove = combo[moveIndex];
 
-        loadAndPlaySound(currentMove.file);
-        console.log('Load and Play', currentMove.title);
+        console.log('Load and Play', currentMove);
+        player.playFile(currentMove.file);
 
         if (currentMove.title !== 'Ding') {
             setMoveText(combo[moveIndex].title.toUpperCase());
@@ -113,19 +106,19 @@ export default function MoveDisplay(props) {
     React.useEffect(() => {
         if (props.resetFired) {
             console.log('PlayButton Reset Fired. Props:', props);
-            stopRound(musicSound);
+            stopRound();
         }
     }, [props.resetFired]);
 
     React.useEffect(() => {
         if (props.active) {
-            if (musicSound) {
-                resumeRound(musicSound);
+            if (hasStarted) {
+                resumeRound();
             } else {
                 startRound();
             }
         } else {
-            pauseRound(musicSound);
+            pauseRound();
         }
     }, [props.active]);
 

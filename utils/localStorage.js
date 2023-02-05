@@ -4,7 +4,7 @@ const STORAGE_KEY = '@boxingHero:';
 
 export async function saveData(fieldKey, value) {
     try {
-        await AsyncStorage.setItem(STORAGE_KEY + fieldKey, value);
+        await AsyncStorage.setItem(STORAGE_KEY + fieldKey, value.toString());
         console.log('Data successfully saved', fieldKey, value);
     } catch (e) {
         console.log('Failed to save the data to the storage', fieldKey, value, e);

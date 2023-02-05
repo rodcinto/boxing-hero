@@ -29,7 +29,7 @@ function SettingsTextInput({ label, fieldKey, placeholder, onChangeText, value }
                 style={formStyles.textInput}
                 onChangeText={onChange}
                 placeholder={placeholder}
-                defaultValue={value}
+                defaultValue={value.toString()}
             />
         </View>
     );

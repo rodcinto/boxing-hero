@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View, Platform } from 'react-native';
 
 import player from '../soundPlayer/player';
 
@@ -19,9 +19,12 @@ export default function MoveDisplay(props) {
 
     const INTRO_TIME = 3000;
     const AFTER_RESUME_TIME = 2000;
-    const MOVE_GAP_TIME = 1;
     const COMBO_GAP_TIME = props.comboSpeed * 1000;
     const COMBO_MIN = 1;
+    const MOVE_GAP_TIME = Platform.select({
+        android: 1,
+        web: 500
+    });
 
     let COMBO_MAX = props.comboSize;
 

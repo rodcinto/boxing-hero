@@ -1,37 +1,75 @@
 import React from 'react';
-import { Stopwatch, Timer } from 'react-native-stopwatch-timer';
+import StopwatchTimer, {
+    StopwatchTimerMethods
+  } from 'react-native-animated-stopwatch-timer';
 
 export default function TimerDisplay(props) {
-    if (props.roundTime === 0) {
-        return (
-            <Stopwatch msecs
-                start={props.active}
-                reset={props.resetFired}
-                options={stopwatchOptions}
-            />
-        );
+    const stopwatchTimerRef = React.useRef(null);
+
+    // Methods to control the stopwatch
+    function play() {
+        stopwatchTimerRef.current?.play();
     }
 
+    function pause() {
+        stopwatchTimerRef.current?.pause();
+    }
+
+    function reset() {
+        stopwatchTimerRef.current?.reset();
+    }
+
+    function finish() {
+        if (props.roundTime > 0) {
+            props.onTimerZero();
+        }
+    }
+
+    React.useEffect(() => {
+        if (props.active) {
+            play();
+        } else {
+            pause();
+        }
+    }, [props.active]);
+
+    React.useEffect(() => {
+        if (props.resetFired) {
+            reset();
+        }
+    }, [props.resetFired]);
+
     return (
-        <Timer msecs
-            totalDuration={props.roundTime * 1000}
-            start={props.active}
-            reset={props.resetFired}
-            options={stopwatchOptions}
+        <StopwatchTimer
+            leadingZeros={2}
+            ref={stopwatchTimerRef}
+            initialTimeInMs={props.roundTime}
+            onFinish={finish()}
+            enterAnimationType={'slide-in-up'}
+            containerStyle={stopwatchStyles.stopWatchContainer}
+            textCharStyle={stopwatchStyles.stopWatchChar}
         />
     );
 }
 
-const stopwatchOptions = {
-    container: {
+const stopwatchStyles = {
+    stopWatchContainer: {
+        paddingVertical: 16,
+        paddingHorizontal: 48,
+        alignItems: 'center',
+        justifyContent: 'center',
+        borderWidth: 1,
         backgroundColor: '#313131',
+        borderColor: 'white',
         borderRadius: 5,
         padding: 14,
         margin: 10,
         width: 310,
     },
-    text: {
+    stopWatchChar: {
         fontSize: 45,
         color: 'gold',
-    }
+        fontWeight: 'bold',
+        letterSpacing: 1,
+    },
 };

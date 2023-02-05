@@ -19,11 +19,11 @@ export default function MoveDisplay(props) {
 
     const INTRO_TIME = 3000;
     const AFTER_RESUME_TIME = 2000;
-    const MOVE_GAP_TIME = 500;
-
+    const MOVE_GAP_TIME = 1;
+    const COMBO_GAP_TIME = props.comboSpeed * 1000;
     const COMBO_MIN = 1;
+
     let COMBO_MAX = props.comboSize;
-    let COMBO_GAP_TIME = props.comboSpeed * 1000;
 
     function startRound() {
         setHasStarted(true);
@@ -37,7 +37,7 @@ export default function MoveDisplay(props) {
 
     async function pauseRound() {
         if (hasStarted) {
-            await player.pauseSound(music);
+            player.pauseSound(music);
         }
 
         clearTimeout(comboTimeout);
@@ -48,7 +48,7 @@ export default function MoveDisplay(props) {
 
     async function resumeRound() {
         player.playFile(boxingBell.file);
-        await player.playSound(music);
+        player.playSound(music);
 
         setComboTimeout(setTimeout(playCombo, AFTER_RESUME_TIME));
 
@@ -57,7 +57,7 @@ export default function MoveDisplay(props) {
 
     async function stopRound() {
         if (hasStarted) {
-            await player.stopSound(music);
+            player.stopSound(music);
             setMusic(null);
             setHasStarted(false);
         }
@@ -79,7 +79,7 @@ export default function MoveDisplay(props) {
         combo.push(ding);
         console.log('Combo:', combo);
 
-        playMoveSet(combo).then(() => {
+        await playMoveSet(combo).then(() => {
             setComboTimeout(setTimeout(playCombo, COMBO_GAP_TIME));
         });
     }
@@ -92,11 +92,12 @@ export default function MoveDisplay(props) {
         const currentMove = combo[moveIndex];
 
         console.log('Load and Play', currentMove);
-        player.playFile(currentMove.file);
+        await player.playFile(currentMove.file);
 
         if (currentMove.title !== 'Ding') {
             setMoveText(combo[moveIndex].title.toUpperCase());
         }
+
         setMoveTimeout(setTimeout(() => {
             moveIndex++;
             playMoveSet(combo, moveIndex);

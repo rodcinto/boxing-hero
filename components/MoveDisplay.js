@@ -11,10 +11,11 @@ import { moveSoundList } from '../soundData/moves/moveSoundList';
 import { shuffle } from '../utils/shuffle';
 
 export default function MoveDisplay(props) {
+    const comboTimeoutRef = React.useRef(null);
+    const moveTimeoutRef = React.useRef(null);
+
     const [hasStarted, setHasStarted] = React.useState(false);
     const [music, setMusic] = React.useState();
-    const [comboTimeout, setComboTimeout] = React.useState();
-    const [moveTimeout, setMoveTimeout] = React.useState();
     const [moveText, setMoveText] = React.useState();
 
     const INTRO_TIME = 3000;
@@ -22,18 +23,18 @@ export default function MoveDisplay(props) {
     const COMBO_GAP_TIME = props.comboSpeed * 1000;
     const COMBO_MIN = 1;
     const MOVE_GAP_TIME = Platform.select({
-        android: 1,
+        android: 1000,
         web: 500
     });
 
-    let COMBO_MAX = props.comboSize;
+    const COMBO_MAX = props.comboSize;
 
     function startRound() {
         setHasStarted(true);
         player.playFile(boxingBell.file);
         loadMusic();
 
-        setComboTimeout(setTimeout(playCombo, INTRO_TIME));
+        comboTimeoutRef.current = setTimeout(playCombo, INTRO_TIME);
 
         console.log('START ROUND', props);
     }
@@ -43,30 +44,30 @@ export default function MoveDisplay(props) {
             player.pauseSound(music);
         }
 
-        clearTimeout(comboTimeout);
-        clearTimeout(moveTimeout);
+        clearTimeout(comboTimeoutRef.current);
+        clearTimeout(moveTimeoutRef.current);
 
         console.log('PAUSE ROUND', props);
     }
 
-    async function resumeRound() {
+    function resumeRound() {
         player.playFile(boxingBell.file);
         player.playSound(music);
 
-        setComboTimeout(setTimeout(playCombo, AFTER_RESUME_TIME));
+        comboTimeoutRef.current = setTimeout(playCombo, AFTER_RESUME_TIME);
 
         console.log('RESUME ROUND', props);
     }
 
-    async function stopRound() {
+    function stopRound() {
         if (hasStarted) {
             player.stopSound(music);
             setMusic(null);
             setHasStarted(false);
         }
 
-        clearTimeout(comboTimeout);
-        clearTimeout(moveTimeout);
+        clearTimeout(comboTimeoutRef.current);
+        clearTimeout(moveTimeoutRef.current);
 
         setMoveText('');
     }
@@ -77,35 +78,37 @@ export default function MoveDisplay(props) {
         setMusic(sound);
     }
 
-    async function playCombo() {
+    const playCombo = React.useCallback(async () => {
         const combo = shuffle(moveSoundList, COMBO_MAX, COMBO_MIN);
         combo.push(ding);
-        console.log('Combo:', combo);
+        console.log("Combo:", combo);
 
         await playMoveSet(combo).then(() => {
-            setComboTimeout(setTimeout(playCombo, COMBO_GAP_TIME));
+            comboTimeoutRef.current = setTimeout(playCombo, COMBO_GAP_TIME);
         });
-    }
+    }, [COMBO_GAP_TIME, ding, moveSoundList, playMoveSet]);
 
-    async function playMoveSet(combo, moveIndex = 0) {
-        if (moveIndex >= combo.length) {
+    const playMoveSet = React.useCallback(
+        async (combo, moveIndex = 0) => {
+          if (moveIndex >= combo.length) {
             return;
-        }
+          }
 
-        const currentMove = combo[moveIndex];
+          const currentMove = combo[moveIndex];
 
-        console.log('Load and Play', currentMove);
-        await player.playFile(currentMove.file);
+          console.log("Load and Play", currentMove);
+          player.playFile(currentMove.file);
 
-        if (currentMove.title !== 'Ding') {
+          if (currentMove.title !== "Ding") {
             setMoveText(combo[moveIndex].title.toUpperCase());
-        }
+          }
 
-        setMoveTimeout(setTimeout(() => {
-            moveIndex++;
-            playMoveSet(combo, moveIndex);
-        }, MOVE_GAP_TIME));
-    }
+          moveTimeoutRef.current = setTimeout(() => {
+            playMoveSet(combo, ++moveIndex);
+          }, MOVE_GAP_TIME);
+        },
+        [MOVE_GAP_TIME]
+      );
 
     React.useEffect(() => {
         if (props.resetFired) {

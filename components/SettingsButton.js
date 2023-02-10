@@ -9,29 +9,44 @@ import {
     ScrollView,
     TextInput
 } from 'react-native';
+import Slider from '@react-native-community/slider'
 
 import { saveData } from '../utils/localStorage';
 import { defaultSettings, loadSettings } from '../utils/settings';
 
-function SettingsTextInput({ label, fieldKey, placeholder, onChangeText, value }) {
+function SettingsInput({ label, fieldKey, placeholder, onChangeText, value, maxLimit = 3000 }) {
+    const [internalValue, setInternalValue] = React.useState(value);
     function onChange(value) {
         if (!parseInt(value)) {
             value = 0;
         }
+        setInternalValue(value);
         onChangeText(fieldKey, value);
     }
     return (
-        <View style={formStyles.row}>
+        <>
             <Text style={formStyles.label}>{label}</Text>
-            <TextInput
-                keyboardType='numeric'
-                maxLength={4}
-                style={formStyles.textInput}
-                onChangeText={onChange}
-                placeholder={placeholder}
-                defaultValue={value.toString()}
-            />
-        </View>
+            <View style={formStyles.row}>
+                <Slider
+                    style={formStyles.slider}
+                    maximumValue={maxLimit}
+                    minimumValue={0}
+                    minimumTrackTintColor="cornflowerblue"
+                    maximumTrackTintColor="#000000"
+                    step={1}
+                    value={internalValue}
+                    onValueChange={onChange}
+                />
+                <TextInput
+                    keyboardType='numeric'
+                    maxLength={4}
+                    style={formStyles.textInput}
+                    onChangeText={onChange}
+                    placeholder={placeholder}
+                    value={internalValue.toString()}
+                />
+            </View>
+        </>
     );
 }
 
@@ -56,32 +71,34 @@ function SettingsModal({ modalVisible, closeModal, currentSettings = {} }) {
         >
             <ScrollView>
                 <View style={styles.modalView}>
-                    <SettingsTextInput
+                    <SettingsInput
                         label='Round Time (seconds)'
                         fieldKey='roundTime'
                         placeholder='Unlimited'
                         onChangeText={updateSettings}
                         value={currentSettings.roundTime ?? defaultSettings.roundTime}
                     />
-                    <SettingsTextInput
-                        label='Combo Speed (seconds)'
+                    <SettingsInput
+                        label='Combo Interval (seconds)'
                         fieldKey='comboSpeed'
                         placeholder='In Seconds'
                         onChangeText={saveData}
                         value={currentSettings.comboSpeed ?? defaultSettings.comboSpeed}
+                        maxLimit={6}
                     />
-                    <SettingsTextInput
+                    <SettingsInput
                         label='Combo Max Size'
                         fieldKey='comboSize'
                         placeholder='Ex. 5'
                         onChangeText={saveData}
                         value={currentSettings.comboSize ?? defaultSettings.comboSize}
+                        maxLimit={10}
                     />
                     <Pressable
                         style={styles.buttonClose}
                         onPress={() => closeModal(newSettings)}
                     >
-                        <Text style={styles.closeModalText}>CLOSE</Text>
+                        <Text style={styles.closeModalText}>Save & Close</Text>
                     </Pressable>
                 </View>
             </ScrollView>
@@ -120,18 +137,31 @@ export default function SettingsButton(props) {
 const formStyles = StyleSheet.create({
     row: {
         flex: 1,
+        flexDirection: 'row',
         margin: 10,
         width: '95%'
     },
     label: {
-        marginBottom: 5
+        marginTop: 5,
+        width: '100%',
     },
     textInput: {
         height: 40,
         borderWidth: 1,
         padding: 10,
-        borderRadius: 5
+        borderRadius: 5,
+        marginTop: 1,
+        marginLeft: 10,
+        textAlign: 'center',
+        width: '20%',
+        alignSelf: 'right'
+    },
+    slider: {
+        width: '60%',
+        marginTop: 1,
+        alignSelf: 'left'
     }
+
 });
 const styles = StyleSheet.create({
     modalDialog: {

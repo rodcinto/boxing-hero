@@ -43,7 +43,7 @@ export default function TimerDisplay(props) {
         <StopwatchTimer
             leadingZeros={2}
             ref={stopwatchTimerRef}
-            initialTimeInMs={props.roundTime}
+            initialTimeInMs={props.roundTime} // @FIXME: This is not working when set to greater than 0.
             onFinish={finish()}
             enterAnimationType={'slide-in-up'}
             containerStyle={stopwatchStyles.stopWatchContainer}

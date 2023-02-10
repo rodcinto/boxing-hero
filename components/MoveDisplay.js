@@ -23,7 +23,7 @@ export default function MoveDisplay(props) {
     const COMBO_GAP_TIME = props.comboSpeed * 1000;
     const COMBO_MIN = 1;
     const MOVE_GAP_TIME = Platform.select({
-        android: 1000,
+        android: 500,
         web: 500
     });
 

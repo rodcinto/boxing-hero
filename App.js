@@ -22,6 +22,9 @@ function reducer(state, action) {
         case 'updateSettings':
             console.log('UpdateSettings', action);
             const newSettings = {};
+            newSettings.roundTime = defaultSettings.roundTime;
+            newSettings.comboSize = defaultSettings.comboSize;
+            newSettings.comboSpeed = defaultSettings.comboSpeed;
             if (action.value) {
                 newSettings.roundTime = action.value.roundTime ?? defaultSettings.roundTime;
                 newSettings.comboSize = action.value.comboSize ?? defaultSettings.comboSize;

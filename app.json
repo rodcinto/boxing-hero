@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "BoxingHero",
-    "slug": "BoxingHero",
+    "slug": "boxing-hero",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -24,10 +24,17 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#FFFFFF"
-      }
+      },
+      "package": "com.rodcinto.boxinghero"
     },
     "web": {
       "favicon": "./assets/favicon.png"
-    }
+    },
+    "extra": {
+      "eas": {
+        "projectId": "a3e3c7ff-c973-4189-82d9-b441f9d12f30"
+      }
+    },
+    "owner": "rodcinto"
   }
 }

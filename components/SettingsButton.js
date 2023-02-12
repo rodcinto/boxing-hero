@@ -34,10 +34,11 @@ function SettingsInput({ label, fieldKey, placeholder, onChangeText, value, maxL
                     minimumTrackTintColor="cornflowerblue"
                     maximumTrackTintColor="#000000"
                     step={1}
-                    value={internalValue}
+                    value={Number(internalValue)}
                     onValueChange={onChange}
                 />
                 <TextInput
+                    numeric
                     keyboardType='numeric'
                     maxLength={4}
                     style={formStyles.textInput}
@@ -77,6 +78,7 @@ function SettingsModal({ modalVisible, closeModal, currentSettings = {} }) {
                         placeholder='Unlimited'
                         onChangeText={updateSettings}
                         value={currentSettings.roundTime ?? defaultSettings.roundTime}
+                        maxLimit={120}
                     />
                     <SettingsInput
                         label='Combo Interval (seconds)'

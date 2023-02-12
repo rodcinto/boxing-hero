@@ -5,23 +5,26 @@ import StopwatchTimer, {
 
 export default function TimerDisplay(props) {
     const stopwatchTimerRef = React.useRef(null);
+    const [timerState, setTimerState] = React.useState('stopped');
 
-    // Methods to control the stopwatch
     function play() {
         stopwatchTimerRef.current?.play();
+        setTimerState('running');
     }
 
     function pause() {
         stopwatchTimerRef.current?.pause();
+        setTimerState('paused');
     }
 
     function reset() {
         stopwatchTimerRef.current?.reset();
+        setTimerState('stopped');
     }
 
     function finish() {
-        if (props.roundTime > 0) {
-            props.onTimerZero();
+        if (timerState === 'stopped') {
+            // props.onTimerZero();
         }
     }
 
@@ -42,8 +45,9 @@ export default function TimerDisplay(props) {
     return (
         <StopwatchTimer
             leadingZeros={2}
+            trailingZeros={2}
             ref={stopwatchTimerRef}
-            initialTimeInMs={props.roundTime} // @FIXME: This is not working when set to greater than 0.
+            initialTimeInMs={props.roundTime * 1000}
             onFinish={finish()}
             enterAnimationType={'slide-in-up'}
             containerStyle={stopwatchStyles.stopWatchContainer}

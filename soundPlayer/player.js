@@ -1,7 +1,7 @@
 import { Audio } from 'expo-av';
 
 export default {
-    playFile(file) {
+    async playFile(file) {
         return Audio.Sound.createAsync(file)
         .then(({ sound }) => {
                 sound.playAsync();
@@ -10,14 +10,20 @@ export default {
     },
 
     playSound(sound) {
-        sound.playAsync();
+        if (sound) {
+            sound.playAsync();
+        }
     },
 
     pauseSound(sound) {
-        sound.pauseAsync();
+        if (sound) {
+            sound.pauseAsync();
+        }
     },
 
     stopSound(sound) {
-        sound.stopAsync().then(() => { sound.unloadAsync() });
+        if (sound) {
+            sound.stopAsync().then(() => { sound.unloadAsync() });
+        }
     },
 }

@@ -21,3 +21,12 @@ export async function readData(fieldKey) {
 export async function readInteger(fieldKey) {
     return await readData(fieldKey).then(value => parseInt(value ?? 0));
 }
+
+export async function readBoolean(fieldKey) {
+    return await readData(fieldKey).then(value => {
+        if (value !== null) {
+            return value.toLowerCase() === 'true';
+        }
+        return null;
+    });
+}

@@ -32,7 +32,10 @@ export default function MoveDisplay(props) {
     function startRound() {
         setHasStarted(true);
         player.playFile(boxingBell.file);
-        loadMusic();
+
+        if (!props.muted) {
+            loadMusic();
+        }
 
         comboTimeoutRef.current = setTimeout(playCombo, INTRO_TIME);
 

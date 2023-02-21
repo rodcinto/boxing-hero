@@ -25,11 +25,16 @@ function reducer(state, action) {
             newSettings.roundTime = defaultSettings.roundTime;
             newSettings.comboSize = defaultSettings.comboSize;
             newSettings.comboSpeed = defaultSettings.comboSpeed;
+            newSettings.muted = defaultSettings.muted;
             if (action.value) {
                 newSettings.roundTime = action.value.roundTime ?? defaultSettings.roundTime;
                 newSettings.comboSize = action.value.comboSize ?? defaultSettings.comboSize;
                 newSettings.comboSpeed = action.value.comboSpeed ?? defaultSettings.comboSpeed;
+                newSettings.muted = action.value.muted ?? defaultSettings.muted;
             }
+
+            console.log('defaultSettings', defaultSettings);
+            console.log('New Settings', newSettings);
             return {
                 ...state,
                 appSettings: newSettings
@@ -90,6 +95,7 @@ export default function App() {
                 resetFired={state.reset}
                 comboSize={state.appSettings.comboSize}
                 comboSpeed={state.appSettings.comboSpeed}
+                muted={state.appSettings.muted}
             />
 
             <TimerDisplay

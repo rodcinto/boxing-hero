@@ -8,7 +8,9 @@ import TimerDisplay from './components/TimerDisplay';
 import SettingsButton from './components/SettingsButton';
 
 import { defaultSettings, loadSettings } from './utils/settings';
+import { saveData } from './utils/localStorage';
 import MoveDisplay from './components/MoveDisplay';
+import MusicButton from './components/MusicButton';
 
 const initialState = {
     roundActive: false,
@@ -26,6 +28,7 @@ function reducer(state, action) {
             newSettings.comboSize = defaultSettings.comboSize;
             newSettings.comboSpeed = defaultSettings.comboSpeed;
             newSettings.muted = defaultSettings.muted;
+
             if (action.value) {
                 newSettings.roundTime = action.value.roundTime ?? defaultSettings.roundTime;
                 newSettings.comboSize = action.value.comboSize ?? defaultSettings.comboSize;
@@ -48,6 +51,10 @@ function reducer(state, action) {
         case 'reset':
             console.log('Reset');
             return { ...state, roundActive: false, reset: true };
+        case 'toggleMuteMusic':
+            const newMuted = !state.appSettings.muted;
+            saveData('muted', newMuted);
+            return { ...state, appSettings: { ...state.appSettings, muted: newMuted } };
         default:
             throw new Error('I do not know this action');
     }
@@ -112,6 +119,8 @@ export default function App() {
             />
 
             <ResetButton onPress={() => dispatch({ type: 'reset' })} />
+
+            <MusicButton onPress={() => dispatch({ type: 'toggleMuteMusic' })} muted={state.appSettings.muted} />
 
             <SettingsButton onUpdate={updateSettings} />
 
